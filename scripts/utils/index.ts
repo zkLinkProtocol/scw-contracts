@@ -139,7 +139,7 @@ export const DEPLOYMENT_CHAIN_GAS_PRICES: Record<
   5611: {
     gasPrice: parseUnits("0.1", "gwei"),
   },
-  91715: {
+  1715: {
     gasPrice: parseUnits("0.1", "gwei"),
   },
   9980: {
@@ -176,6 +176,7 @@ export const DEPLOYMENT_CHAIN_GAS_PRICES: Record<
   2810: { gasPrice: parseUnits("3", "gwei") },
   3799: { gasPrice: parseUnits("1", "gwei") },
   713715: { gasPrice: parseUnits("1", "gwei") },
+  1328: { gasPrice: parseUnits("1", "gwei") },
   80084: { gasPrice: parseUnits("1", "gwei") },
   701: { gasPrice: parseUnits("1", "gwei") },
 
@@ -317,7 +318,7 @@ export const factoryStakeConfigDevx: Record<number, StakingConfig> = {
     unstakeDelayInSec: 60 * 60 * 24, // 1 Day
     stakeInWei: parseEther("0.1"),
   },
-  91715: {
+  1715: {
     unstakeDelayInSec: 60 * 60 * 24, // 1 Day
     stakeInWei: parseEther("0.1"),
   },
@@ -482,6 +483,10 @@ export const factoryStakeConfigDevx: Record<number, StakingConfig> = {
     unstakeDelayInSec: 60 * 60 * 24, // 1 Day
     stakeInWei: parseEther("0.001"),
   },
+  997: {
+    unstakeDelayInSec: 60 * 60 * 24, // 1 Day
+    stakeInWei: parseEther("0.001"),
+  },
 };
 
 // For testnets, we stake 0.1 <native tokens>. For mainnets, we use industry standard values.
@@ -494,6 +499,10 @@ export const factoryStakeConfigProd: Record<number, StakingConfig> = {
   80002: {
     unstakeDelayInSec: 60 * 60 * 24, // 1 Day
     stakeInWei: parseEther("0.1"),
+  },
+  1328: {
+    unstakeDelayInSec: 60 * 60 * 24, // 1 Day
+    stakeInWei: parseEther("0.001"),
   },
   97: {
     unstakeDelayInSec: 60 * 60 * 24, // 1 Day
@@ -551,7 +560,7 @@ export const factoryStakeConfigProd: Record<number, StakingConfig> = {
     unstakeDelayInSec: 60 * 60 * 24, // 1 Day
     stakeInWei: parseEther("0.1"),
   },
-  91715: {
+  1715: {
     unstakeDelayInSec: 60 * 60 * 24, // 1 Day
     stakeInWei: parseEther("0.1"),
   },
@@ -614,6 +623,10 @@ export const factoryStakeConfigProd: Record<number, StakingConfig> = {
   10200: {
     unstakeDelayInSec: 60 * 60 * 24, // 1 Day
     stakeInWei: parseEther("0.01"),
+  },
+  997: {
+    unstakeDelayInSec: 60 * 60 * 24, // 1 Day
+    stakeInWei: parseEther("0.001"),
   },
   // Mainnets
   137: {

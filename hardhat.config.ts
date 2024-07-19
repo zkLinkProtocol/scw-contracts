@@ -46,6 +46,9 @@ const config: HardhatUserConfig = {
     deployer: 0,
     verifiedSigner: 5,
   },
+  sourcify: {
+    enabled: true,
+  },
   solidity: {
     compilers: [
       {
@@ -139,7 +142,7 @@ const config: HardhatUserConfig = {
       chainId: 80001,
       accounts: hardhatAccounts,
     },
-    polygon_amoy: {
+    polygonAmoy: {
       url:
         process.env.POLYGON_AMOY_URL || "https://rpc-amoy.polygon.technology/",
       chainId: 80002,
@@ -287,7 +290,7 @@ const config: HardhatUserConfig = {
     comboTestnet: {
       url: process.env.COMBO_TESTNET_URL,
       accounts: hardhatAccounts,
-      chainId: 91715,
+      chainId: 1715,
     },
     comboMainnet: {
       url: process.env.COMBO_MAINNET_URL || "",
@@ -521,6 +524,11 @@ const config: HardhatUserConfig = {
       accounts: hardhatAccounts,
       chainId: 701,
     },
+    seiAtlanticDevnet: {
+      url: "https://evm-rpc-testnet.sei-apis.com/",
+      accounts: hardhatAccounts,
+      chainId: 1328,
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
@@ -577,7 +585,7 @@ const config: HardhatUserConfig = {
       optimismSepolia: process.env.OPTIMISTIC_API_KEY || "",
       polygon: process.env.POLYGONSCAN_API_KEY || "",
       polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
-      polygon_amoy: process.env.POLYGONSCAN_API_KEY || "",
+      polygonAmoy: process.env.POLYGONSCAN_API_KEY || "",
       scrollMainnet: process.env.SCROLL_API_KEY || "",
       scrollTestnet: process.env.SCROLL_API_KEY || "",
       sepolia: process.env.ETHERSCAN_API_KEY || "",
@@ -593,6 +601,14 @@ const config: HardhatUserConfig = {
         urls: {
           apiURL: "https://api-sepolia.arbiscan.io/api",
           browserURL: "https://sepolia.arbiscan.io",
+        },
+      },
+      {
+        network: "polygonAmoy",
+        chainId: 80002,
+        urls: {
+          apiURL: "https://api-amoy.polygonscan.com/api",
+          browserURL: "https://amoy.polygonscan.com",
         },
       },
       {
