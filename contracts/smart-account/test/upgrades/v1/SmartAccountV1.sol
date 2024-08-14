@@ -268,7 +268,7 @@ contract SmartAccountV1 is
         {
             // If the gasPrice is 0 we assume that nearly all available gas can be used (it is always more than targetTxGas)
             // We only substract 2500 (compared to the 3000 before) to ensure that the amount passed is still higher than targetTxGas
-            success = execute(
+            success = _execute(
                 _tx.to,
                 _tx.value,
                 _tx.data,
@@ -486,7 +486,7 @@ contract SmartAccountV1 is
     ) external returns (uint256) {
         uint256 startGas = gasleft();
         // We don't provide an error message here, as we use it to return the estimate
-        if (!execute(to, value, data, operation, gasleft()))
+        if (!_execute(to, value, data, operation, gasleft()))
             revert ExecutionFailed();
         // Convert response to string and return via error message
         unchecked {
@@ -716,10 +716,17 @@ contract SmartAccountV1 is
 
     /**
      * @dev Deposit more funds for this account in the entryPoint
+     * @param amount Amount of VTHO to approve for use by the entryPoint
      */
-    function addDeposit() public payable {
-        entryPoint().depositTo{value: msg.value}(address(this));
+    function addDeposit(uint256 amount) public {
+        // Transfer tokens from invoker to SA
+        require(VTHO_TOKEN_CONTRACT.transferFrom(msg.sender, _self, amount), "Amount to deposit exceeds SA's allowance");
+        // Approve EP to pull these tokens
+        require(VTHO_TOKEN_CONTRACT.approve(address(entryPoint()), amount), "Approval to EntryPoint Failed");
+        // Deposit specified amount to EP for SA
+        entryPoint().depositAmountTo(address(this), amount);
     }
+
 
     /**
      * @dev Withdraw value from the account's deposit

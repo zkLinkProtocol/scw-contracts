@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.17;
 
-import {BaseAuthorizationModule, UserOperation} from "./BaseAuthorizationModule.sol";
+import {BaseAuthorizationModule} from "./BaseAuthorizationModule.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "@account-abstraction/contracts/core/Helpers.sol";
+import "@vechain/account-abstraction-contracts/core/Helpers.sol";
 import "./SessionValidationModules/ISessionValidationModule.sol";
 import {ISessionKeyManager} from "../interfaces/ISessionKeyManager.sol";
 

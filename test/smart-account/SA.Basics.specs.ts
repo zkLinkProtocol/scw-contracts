@@ -1,5 +1,5 @@
 import { expect } from "chai";
-import { ethers, deployments, waffle } from "hardhat";
+import hre, { ethers, deployments, waffle } from "hardhat";
 import {
   getEntryPoint,
   getSmartAccountImplementation,
@@ -9,13 +9,15 @@ import {
   getSmartAccountWithModule,
   getVerifyingPaymaster,
 } from "../utils/setupHelper";
+import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 describe("Modular Smart Account Basics: ", async () => {
-  const [deployer, smartAccountOwner, verifiedSigner] =
-    waffle.provider.getWallets();
+  var deployer, smartAccountOwner: SignerWithAddress, verifiedSigner
 
   const setupTests = deployments.createFixture(async ({ deployments }) => {
     await deployments.fixture();
+
+    [deployer, smartAccountOwner, verifiedSigner] =  await hre.ethers.getSigners()
 
     const mockToken = await getMockToken();
 

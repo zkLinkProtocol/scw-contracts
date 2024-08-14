@@ -2,7 +2,7 @@
 pragma solidity 0.8.17;
 
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import {UserOperation} from "@account-abstraction/contracts/interfaces/UserOperation.sol";
+import {UserOperation} from "@vechain/account-abstraction-contracts/interfaces/UserOperation.sol";
 
 struct PaymasterData {
     address paymasterId;
@@ -26,11 +26,9 @@ library PaymasterHelpers {
 
     /**
      * @dev Encodes the paymaster context: paymasterId and gasPrice
-     * @param op UserOperation object
      * @param data PaymasterData passed
      */
     function paymasterContext(
-        UserOperation calldata op,
         PaymasterData memory data
     )
         internal
