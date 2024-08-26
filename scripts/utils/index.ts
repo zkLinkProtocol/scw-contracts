@@ -499,6 +499,10 @@ export const factoryStakeConfigDevx: Record<number, StakingConfig> = {
 // For testnets, we stake 0.1 <native tokens>. For mainnets, we use industry standard values.
 export const factoryStakeConfigProd: Record<number, StakingConfig> = {
   // Testnets
+  80084: {
+    unstakeDelayInSec: 60 * 60 * 24, // 1 Day
+    stakeInWei: parseEther("0.01"),
+  },
   167009: {
     unstakeDelayInSec: 60 * 60 * 24, // 1 Day
     stakeInWei: parseEther("0.01"),
