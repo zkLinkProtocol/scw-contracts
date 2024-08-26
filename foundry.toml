@@ -13,7 +13,7 @@ remappings = [
     "hardhat/=node_modules/hardhat/",
 ]
 via_ir = true
-evm_version = "paris"
+evm_version = "shanghai"
 auto_detect_solc = true
 # auto_detect_remappings = false
 
