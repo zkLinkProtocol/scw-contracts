@@ -31,6 +31,7 @@ const options = { gasLimit: 7000000 /*, gasPrice: 70000000000 */ };
 
 type DeploymentSaltsType = {
   WALLET_FACTORY: string;
+  WALLET_FACTORY_NEW: string;
   WALLET_IMP: string;
   SINGELTON_PAYMASTER: string;
   ECDSA_REGISTRY_MODULE: string;
@@ -49,6 +50,7 @@ type DeploymentSaltsType = {
 // Dev Salts
 export const DEPLOYMENT_SALTS_DEV: DeploymentSaltsType = {
   WALLET_FACTORY: "DEVX_WALLET_FACTORY_V2_050920203",
+  WALLET_FACTORY_NEW: "DEVX_WALLET_FACTORY_V2_190724_FWtLNu5", // ignore
   WALLET_IMP: "DEVX_WALLET_IMP_V2_05092023",
   SINGELTON_PAYMASTER: "DEVX_SINGLETON_PAYMASTER_V1_21082024",
   ECDSA_REGISTRY_MODULE: "DEVX_ECDSA_REGISTRY_MODULE_V0_21082023",
@@ -70,6 +72,7 @@ export const DEPLOYMENT_SALTS_DEV: DeploymentSaltsType = {
 // Prod Salts
 export const DEPLOYMENT_SALTS_PROD: DeploymentSaltsType = {
   WALLET_FACTORY: "PROD_WALLET_FACTORY_V2_0509023SexZu7Y",
+  WALLET_FACTORY_NEW: "PROD_WALLET_FACTORY_V2_190724_FWtLNu5", // 0x000008b3078ba5ed444fff7658f76385f6004e7a
   WALLET_IMP: "PROD_WALLET_IMP_V2_05092023_ixWZVOM",
   SINGELTON_PAYMASTER: "PROD_SINGLETON_PAYMASTER_V1_22082023N4hlwuH",
   ECDSA_REGISTRY_MODULE: "PROD_ECDSA_REGISTRY_MODULE_V1_22082023_ypI3tHh",
@@ -179,6 +182,8 @@ export const DEPLOYMENT_CHAIN_GAS_PRICES: Record<
   1328: { gasPrice: parseUnits("1", "gwei") },
   80084: { gasPrice: parseUnits("1", "gwei") },
   701: { gasPrice: parseUnits("1", "gwei") },
+  28882: { gasPrice: parseUnits("0.001", "gwei") },
+  1802203764: { gasPrice: parseUnits("2", "gwei") },
 
   // Mainnets
   137: {
@@ -240,6 +245,8 @@ export const DEPLOYMENT_CHAIN_GAS_PRICES: Record<
   167000: { gasPrice: parseUnits("0.2", "gwei") },
   1329: { gasPrice: parseUnits("1", "gwei") },
   5845: { gasPrice: parseUnits("1", "gwei") },
+  995: { gasPrice: parseUnits("50", "gwei") },
+  288: { gasPrice: parseUnits("100", "wei") },
 };
 
 export type StakingConfig = {
@@ -492,6 +499,10 @@ export const factoryStakeConfigDevx: Record<number, StakingConfig> = {
 // For testnets, we stake 0.1 <native tokens>. For mainnets, we use industry standard values.
 export const factoryStakeConfigProd: Record<number, StakingConfig> = {
   // Testnets
+  167009: {
+    unstakeDelayInSec: 60 * 60 * 24, // 1 Day
+    stakeInWei: parseEther("0.01"),
+  },
   80001: {
     unstakeDelayInSec: 60 * 60 * 24, // 1 Day
     stakeInWei: parseEther("0.1"),
@@ -628,6 +639,14 @@ export const factoryStakeConfigProd: Record<number, StakingConfig> = {
     unstakeDelayInSec: 60 * 60 * 24, // 1 Day
     stakeInWei: parseEther("0.001"),
   },
+  28882: {
+    unstakeDelayInSec: 60 * 60 * 24, // 1 Day
+    stakeInWei: parseEther("0.001"),
+  },
+  1802203764: {
+    unstakeDelayInSec: 60 * 60 * 24, // 1 Day
+    stakeInWei: parseEther("0.001"),
+  },
   // Mainnets
   137: {
     unstakeDelayInSec: 60 * 60 * 24, // 1 Day
@@ -728,6 +747,14 @@ export const factoryStakeConfigProd: Record<number, StakingConfig> = {
   100: {
     unstakeDelayInSec: 60 * 60 * 24, // 1 Day
     stakeInWei: parseEther("1"),
+  },
+  995: {
+    unstakeDelayInSec: 60 * 60 * 24, // 1 Day
+    stakeInWei: parseEther("0.1"),
+  },
+  288: {
+    unstakeDelayInSec: 60 * 60 * 24, // 1 Day
+    stakeInWei: parseEther("0.01"),
   },
 };
 

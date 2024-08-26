@@ -479,11 +479,6 @@ const config: HardhatUserConfig = {
       accounts: hardhatAccounts,
       chainId: 2810,
     },
-    five5ireTestnet: {
-      url: "https://rpc.ga.5ire.network/",
-      accounts: hardhatAccounts,
-      chainId: 997,
-    },
     taiko: {
       url: "https://rpc.mainnet.taiko.xyz/",
       accounts: hardhatAccounts,
@@ -529,12 +524,41 @@ const config: HardhatUserConfig = {
       accounts: hardhatAccounts,
       chainId: 1328,
     },
+    kakarotTestnet: {
+      url: "https://sepolia-rpc-priority.kakarot.org/",
+      accounts: hardhatAccounts,
+      chainId: 1802203764,
+    },
+    fireChainTestnet: {
+      url: "https://rpc.testnet.5ire.network",
+      accounts: hardhatAccounts,
+      chainId: 997,
+    },
+    fireChainMainnet: {
+      url: "https://rpc.5ire.network",
+      accounts: hardhatAccounts,
+      chainId: 995,
+    },
+    bobaSepolia: {
+      url: "https://sepolia.boba.network",
+      accounts: hardhatAccounts,
+      chainId: 28882,
+    },
+    bobaMainnet: {
+      url: "https://mainnet.boba.network",
+      accounts: hardhatAccounts,
+      chainId: 288,
+    },
+    metalL2Testnet: {
+      url: "https://rpc-metal-l2-testnet-3bbzi9kufn.t.conduit.xyz/4nvN9tL8pppXKHkjWrT128yrFUMvXBxZL",
+      accounts: hardhatAccounts,
+      chainId: 1740,
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,
     onlyCalledMethods: true,
   },
-
   dependencyCompiler: {
     paths: ["@account-abstraction/contracts/core/EntryPoint.sol"],
   },
@@ -593,6 +617,10 @@ const config: HardhatUserConfig = {
       zetachainMainnet: process.env.ZETA_API_KEY || "PLACEHOLDER_STRING",
       zkEVMGoerli: process.env.ZKEVM_API_KEY || "",
       zkEVMMainnet: process.env.ZKEVM_API_KEY || "",
+      kakarotTestnet: process.env.KAKAROT_API_KEY || "",
+      fireChainTestnet: process.env.FIRE_CHAIN_API_KEY || "",
+      // todo
+      // add for other chains for contract verification
     },
     customChains: [
       {
