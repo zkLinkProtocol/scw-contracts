@@ -62,29 +62,29 @@ const config: HardhatUserConfig = {
     hardhat: {
       ...(shouldRunInForkMode
         ? {
-            // Forking Config for Deployment Testing
-            chainId: 5000,
-            forking: {
-              url: process.env.MANTLE_MAINNET_URL,
+          // Forking Config for Deployment Testing
+          chainId: 5000,
+          forking: {
+            url: process.env.MANTLE_MAINNET_URL,
+          },
+          accounts: [
+            {
+              privateKey: process.env.PRIVATE_KEY!,
+              // This is a dummy value and will be overriden in the test by
+              // the account's actual balance from the forked chain
+              balance: "10000000000000000000000000",
             },
-            accounts: [
-              {
-                privateKey: process.env.PRIVATE_KEY!,
-                // This is a dummy value and will be overriden in the test by
-                // the account's actual balance from the forked chain
-                balance: "10000000000000000000000000",
-              },
-            ],
-          }
+          ],
+        }
         : {
-            // Normal Config
-            accounts: {
-              accountsBalance: "10000000000000000000000000",
-              //   mnemonic: MNEMONIC,
-            },
-            allowUnlimitedContractSize: true,
-            chainId: 31337,
-          }),
+          // Normal Config
+          accounts: {
+            accountsBalance: "10000000000000000000000000",
+            //   mnemonic: MNEMONIC,
+          },
+          allowUnlimitedContractSize: true,
+          chainId: 31337,
+        }),
     },
     hardhat_node: {
       live: false,
@@ -114,6 +114,11 @@ const config: HardhatUserConfig = {
     goerli: {
       url: process.env.GOERLI_URL || "",
       chainId: 5,
+      accounts: hardhatAccounts,
+    },
+    sepolia: {
+      url: process.env.SEPOLIA_URL || "",
+      chainId: 11155111,
       accounts: hardhatAccounts,
     },
     polygon_mainnet: {
@@ -171,6 +176,11 @@ const config: HardhatUserConfig = {
       accounts: hardhatAccounts,
       chainId: 42170,
     },
+    arbitrumSepolia: {
+      url: "https://sepolia-rollup.arbitrum.io/rpc",
+      accounts: hardhatAccounts,
+      chainId: 421614,
+    },
     zkevm_mainnet: {
       url: process.env.ZKEVM_MAINNET_URL || "https://zkevm-rpc.com",
       chainId: 1101,
@@ -223,6 +233,11 @@ const config: HardhatUserConfig = {
         `https://base-goerli.blockpi.network/v1/rpc/public`,
       accounts: hardhatAccounts,
       chainId: 84531,
+    },
+    baseSepolia: {
+      url: "https://sepolia.base.org",
+      chainId: 84532,
+      accounts: hardhatAccounts,
     },
     lineaGoerli: {
       url: process.env.LINEA_TESTNET_URL || `https://rpc.goerli.linea.build`,
@@ -280,6 +295,7 @@ const config: HardhatUserConfig = {
     apiKey: {
       mainnet: process.env.ETHERSCAN_API_KEY || "",
       goerli: process.env.ETHERSCAN_API_KEY || "",
+      sepolia: process.env.ETHERSCAN_API_KEY || "",
       polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
       polygon: process.env.POLYGONSCAN_API_KEY || "",
       bscTestnet: process.env.BSCSCAN_API_KEY || "",
@@ -292,12 +308,14 @@ const config: HardhatUserConfig = {
       arbitrumTestnet: process.env.ARBITRUM_API_KEY || "",
       arbitrumOne: process.env.ARBITRUM_API_KEY || "",
       arbitrumNova: process.env.ARBITRUM_NOVA_API_KEY || "",
+      arbitrumSepolia: process.env.ARBITRUM_SEPOLIA_API_KEY || "",
       optimisticGoerli: process.env.OPTIMISTIC_API_KEY || "",
       optimisticEthereum: process.env.OPTIMISTIC_API_KEY || "",
       lineaGoerli: process.env.LINEA_API_KEY || "",
       lineaMainnet: process.env.LINEA_API_KEY || "",
       baseGoerli: process.env.BASE_GOERI_API_KEY || "",
       baseMainnet: process.env.BASE_MAINNET_API_KEY || "",
+      baseSepolia: process.env.BASE_SEPOLIA_API_KEY || "",
       zkEVMMainnet: process.env.ZKEVM_API_KEY || "",
       zkEVMGoerli: process.env.ZKEVM_API_KEY || "",
       opBNBTestnet: process.env.OP_BNB_API_KEY || "",
@@ -346,6 +364,22 @@ const config: HardhatUserConfig = {
           apiURL: "https://api.basescan.org/api",
           browserURL: "https://basescan.org",
         },
+      },
+      {
+        "network": "baseSepolia",
+        "chainId": 84532,
+        "urls": {
+          "apiURL": "https://api-sepolia.basescan.org/api",
+          "browserURL": "https://sepolia.basescan.org"
+        }
+      },
+      {
+        "network": "arbitrumSepolia",
+        "chainId": 421614,
+        "urls": {
+          "apiURL": "https://api-sepolia.arbiscan.io/api",
+          "browserURL": "	https://sepolia.arbiscan.io"
+        }
       },
       {
         network: "zkEVMMainnet",

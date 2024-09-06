@@ -15,6 +15,7 @@ import {
   Deployer__factory,
   ERC20SessionValidationModule__factory,
   EcdsaOwnershipRegistryModule__factory,
+  EcdsaAndPasskeyOwnershipRegistryModule__factory,
   MultichainECDSAValidator__factory,
   PasskeyRegistryModule__factory,
   SessionKeyManager__factory,
@@ -24,8 +25,12 @@ import {
   VerifyingSingletonPaymaster__factory,
 } from "../typechain";
 import { EntryPoint__factory } from "@account-abstraction/contracts";
-import { formatEther, isAddress } from "ethers/lib/utils";
-
+import {
+  formatEther,
+  isAddress,
+  AbiCoder,
+  solidityPack,
+} from "ethers/lib/utils";
 // Deployment Configuration
 const DEPLOYMENT_MODE = process.env.DEPLOYMENT_MODE! as "DEV" | "PROD";
 
@@ -47,6 +52,8 @@ let entryPointAddress =
 let baseImpAddress = "";
 const provider = ethers.provider;
 const contractsDeployed: Record<string, string> = {};
+// EcdsaAndPasskeyOwnershipRegistryModule constructorArguments
+let novaChainId;
 
 export async function deployGeneric(
   deployerInstance: Deployer,
@@ -278,6 +285,31 @@ async function deployEcdsaOwnershipRegistryModule(deployerInstance: Deployer) {
   );
 }
 
+async function deployEcdsaAndPasskeyOwnershipRegistryModule(
+  deployerInstance: Deployer
+) {
+  if (!novaChainId) {
+    throw new Error("Nova Chain ID not set");
+  }
+
+  // Refer: https://github.com/0xsequence/create3?tab=readme-ov-file#contract-example
+  const bytecode = solidityPack(
+    ["bytes", "bytes"],
+    [
+      `${EcdsaAndPasskeyOwnershipRegistryModule__factory.bytecode}`,
+      new AbiCoder().encode(["uint256"], [novaChainId]),
+    ]
+  );
+
+  await deployGeneric(
+    deployerInstance,
+    DEPLOYMENT_SALTS.ECDSA_AND_PASSKEY_REGISTRY_MODULE,
+    bytecode,
+    "EcdsaAndPasskeyOwnershipRegistryModule",
+    [novaChainId]
+  );
+}
+
 async function deployMultichainValidatorModule(deployerInstance: Deployer) {
   await deployGeneric(
     deployerInstance,
@@ -404,28 +436,30 @@ export async function mainDeploy(): Promise<Record<string, string>> {
   console.log("=========================================");
 
   const deployerInstance = await getPredeployedDeployerContractInstance();
-  await deployEntryPointContract(deployerInstance);
+  // await deployEntryPointContract(deployerInstance);
+  // console.log("=========================================");
+  // await deployBaseWalletImpContract(deployerInstance);
+  // console.log("=========================================");
+  // await deployWalletFactoryContract(deployerInstance);
+  // console.log("=========================================");
+  // await deployVerifySingeltonPaymaster(deployerInstance);
+  // console.log("=========================================");
+  // await deployEcdsaOwnershipRegistryModule(deployerInstance);
+  // console.log("=========================================");
+  await deployEcdsaAndPasskeyOwnershipRegistryModule(deployerInstance);
   console.log("=========================================");
-  await deployBaseWalletImpContract(deployerInstance);
-  console.log("=========================================");
-  await deployWalletFactoryContract(deployerInstance);
-  console.log("=========================================");
-  await deployVerifySingeltonPaymaster(deployerInstance);
-  console.log("=========================================");
-  await deployEcdsaOwnershipRegistryModule(deployerInstance);
-  console.log("=========================================");
-  await deployMultichainValidatorModule(deployerInstance);
-  console.log("=========================================");
-  await deployPasskeyModule(deployerInstance);
-  console.log("=========================================");
-  await deploySessionKeyManagerModule(deployerInstance);
-  console.log("=========================================");
-  await deployBatchedSessionRouterModule(deployerInstance);
-  console.log("=========================================");
-  await deployErc20SessionValidationModule(deployerInstance);
-  console.log("=========================================");
-  await deploySmartContractOwnershipRegistryModule(deployerInstance);
-  console.log("=========================================");
+  // await deployMultichainValidatorModule(deployerInstance);
+  // console.log("=========================================");
+  // await deployPasskeyModule(deployerInstance);
+  // console.log("=========================================");
+  // await deploySessionKeyManagerModule(deployerInstance);
+  // console.log("=========================================");
+  // await deployBatchedSessionRouterModule(deployerInstance);
+  // console.log("=========================================");
+  // await deployErc20SessionValidationModule(deployerInstance);
+  // console.log("=========================================");
+  // await deploySmartContractOwnershipRegistryModule(deployerInstance);
+  // console.log("=========================================");
 
   console.log(
     "Deployed Contracts: ",
