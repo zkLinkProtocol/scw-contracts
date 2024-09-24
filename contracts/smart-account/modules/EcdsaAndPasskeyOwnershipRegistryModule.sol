@@ -4,19 +4,8 @@ pragma solidity 0.8.17;
 import {BaseAuthorizationModule} from "./BaseAuthorizationModule.sol";
 import {UserOperation} from "@account-abstraction/contracts/interfaces/UserOperation.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-
-/**
- * @title ECDSA ownership Authorization module for Biconomy Smart Accounts.
- * @dev Compatible with Biconomy Modular Interface v 0.1
- *         - It allows to validate user operations signed by EOA private key.
- *         - EIP-1271 compatible (ensures Smart Account can validate signed messages).
- *         - One owner per Smart Account.
- *         - Does not support outdated eth_sign flow for cheaper validations
- *         (see https://support.metamask.io/hc/en-us/articles/14764161421467-What-is-eth-sign-and-why-is-it-a-risk-)
- * !!!!!!! Only EOA owners supported, no Smart Account Owners
- *         For Smart Contract Owners check SmartContractOwnership module instead
- * @author Fil Makarov - <filipp.makarov@biconomy.io>
- */
+import {Secp256r1, PassKeyId} from "./PasskeyValidationModules/Secp256r1.sol";
+import {PasskeyHelper, SINGLE_TX_R1_TYPE, MULTI_TX_R1_TYPE, MULTI_TX_K1_TYPE} from "./PasskeyValidationModules/PasskeyHelper.sol";
 
 contract EcdsaAndPasskeyOwnershipRegistryModule is BaseAuthorizationModule {
     using ECDSA for bytes32;
@@ -56,6 +45,7 @@ contract EcdsaAndPasskeyOwnershipRegistryModule is BaseAuthorizationModule {
 
     mapping(address => address) internal _smartAccountOwners;
     mapping(address => address) internal _smartAccountTurnkey;
+    mapping(address => PassKeyId) internal _smartAccountPassKeys;
 
     event OwnershipTransferred(
         address indexed smartAccount,
@@ -69,14 +59,22 @@ contract EcdsaAndPasskeyOwnershipRegistryModule is BaseAuthorizationModule {
         address indexed newTurnkeyWallet
     );
 
+    event PasskeyTransferred(
+        address indexed smartAccount,
+        string oldCredentialIdHash,
+        string newCredentialIdHash
+    );
+
     error NoOwnerRegisteredForSmartAccount(address smartAccount);
     error NoTurnkeyWalletRegisteredForSmartAccount(address smartAccount);
     error NoRequiredSignerRegisteredForSmartAccount(address smartAccount);
     error AlreadyInitedForSmartAccount(address smartAccount);
+    error NoPassKeyRegisteredForSmartAccount(address smartAccount);
     error WrongSignatureLength();
     error NotEOA(address account);
     error ZeroAddressNotAllowedAsOwner();
     error ZeroAddressNotAllowedAsTurnkeyWallet();
+    error ZeroNotAllowedAsPublicKey();
 
     constructor(uint256 _chainId) {
         // Set the chain ID for the EIP-712 domain.
@@ -88,10 +86,16 @@ contract EcdsaAndPasskeyOwnershipRegistryModule is BaseAuthorizationModule {
      * Should be used at a time of first enabling the module for a Smart Account.
      * @param eoaOwner The owner of the Smart Account. Should be EOA!
      * @param turnkeyWallet The turnkey wallet of the Smart Account. Should be EOA!
+     * @param _pubKeyX The x-coordinate of the public key.
+     * @param _pubKeyY The y-coordinate of the public key.
+     * @param _credentialIdHash The credentialIdHash of public key.
      */
     function initForSmartAccount(
         address eoaOwner,
-        address turnkeyWallet
+        address turnkeyWallet,
+        uint256 _pubKeyX,
+        uint256 _pubKeyY,
+        string memory _credentialIdHash
     ) external returns (address) {
         if (_smartAccountOwners[msg.sender] != address(0))
             revert AlreadyInitedForSmartAccount(msg.sender);
@@ -100,6 +104,17 @@ contract EcdsaAndPasskeyOwnershipRegistryModule is BaseAuthorizationModule {
             revert ZeroAddressNotAllowedAsTurnkeyWallet();
         _smartAccountOwners[msg.sender] = eoaOwner;
         _smartAccountTurnkey[msg.sender] = turnkeyWallet;
+
+        if (
+            _smartAccountPassKeys[msg.sender].pubKeyX != 0 &&
+            _smartAccountPassKeys[msg.sender].pubKeyY != 0
+        ) revert AlreadyInitedForSmartAccount(msg.sender);
+        _smartAccountPassKeys[msg.sender] = PassKeyId(
+            _pubKeyX,
+            _pubKeyY,
+            _credentialIdHash
+        );
+
         return address(this);
     }
 
@@ -129,8 +144,25 @@ contract EcdsaAndPasskeyOwnershipRegistryModule is BaseAuthorizationModule {
      */
     function transferTurnkeyWallet(address turnkeyWallet) external {
         if (_isSmartContract(turnkeyWallet)) revert NotEOA(turnkeyWallet);
-        if (turnkeyWallet == address(0)) revert ZeroAddressNotAllowedAsOwner();
+        if (turnkeyWallet == address(0))
+            revert ZeroAddressNotAllowedAsTurnkeyWallet();
         _transferTurnkeyWallet(msg.sender, turnkeyWallet);
+    }
+
+    /**
+     * @dev Sets/changes an passkey for a Smart Account.
+     * Should be called by Smart Account itself.
+     * @param _pubKeyX The x-coordinate of the public key.
+     * @param _pubKeyY The y-coordinate of the public key.
+     * @param _credentialIdHash The credentialIdHash of the public key.
+     */
+    function transferPasskey(
+        uint256 _pubKeyX,
+        uint256 _pubKeyY,
+        string memory _credentialIdHash
+    ) external {
+        if (_pubKeyX == 0 || _pubKeyY == 0) revert ZeroNotAllowedAsPublicKey();
+        _transferPasskey(msg.sender, _pubKeyX, _pubKeyY, _credentialIdHash);
     }
 
     /**
@@ -160,6 +192,20 @@ contract EcdsaAndPasskeyOwnershipRegistryModule is BaseAuthorizationModule {
     }
 
     /**
+     * @dev Returns the passkey of the Smart Account. Reverts for Smart Accounts without passkeys.
+     * @param smartAccount Smart Account address.
+     * @return passKey The passkey of the Smart Account.
+     */
+    function getPasskey(
+        address smartAccount
+    ) external view returns (PassKeyId memory) {
+        PassKeyId memory passKey = _smartAccountPassKeys[smartAccount];
+        if (passKey.pubKeyX == 0 || passKey.pubKeyY == 0)
+            revert NoPassKeyRegisteredForSmartAccount(smartAccount);
+        return passKey;
+    }
+
+    /**
      * @dev validates userOperation
      * @param userOp User Operation to be validated.
      * @param userOpHash Hash of the User Operation to be validated.
@@ -169,75 +215,63 @@ contract EcdsaAndPasskeyOwnershipRegistryModule is BaseAuthorizationModule {
         UserOperation calldata userOp,
         bytes32 userOpHash
     ) external view virtual returns (uint256) {
-        bytes memory cleanEcdsaSignature;
-        bytes32 rootHash;
-
-        (bytes memory signature, ) = abi.decode(
+        (bytes memory userOpSignature, ) = abi.decode(
             userOp.signature,
             (bytes, address)
         );
-        cleanEcdsaSignature = signature;
-        rootHash = userOpHash;
 
-        if (signature.length > 65) {
-            (
-                bytes32 novaTxsRootHash,
-                bytes memory userOpsHashPrefix,
-                bytes memory userOpsHashSuffix,
-                bytes memory userOpDomainsHashPrefix,
-                bytes memory userOpDomainsHashSuffix,
-                bytes memory tempCleanEcdsaSignature
-            ) = abi.decode(
-                    signature,
-                    (bytes32, bytes, bytes, bytes, bytes, bytes)
+        bool bIsValidSignature;
+
+        if (userOpSignature.length == 65) {
+            bIsValidSignature = _verifyK1Signature(
+                userOpHash,
+                userOpSignature,
+                userOp.sender
+            );
+        } else if (userOpSignature.length > 65) {
+            (bytes2 magicNum, bytes memory encodedSignature) = abi.decode(
+                userOpSignature,
+                (bytes2, bytes)
+            );
+
+            if (magicNum == SINGLE_TX_R1_TYPE) {
+                bIsValidSignature = _verifyR1Signature(
+                    userOpHash,
+                    encodedSignature,
+                    msg.sender
                 );
+            } else if (magicNum == MULTI_TX_R1_TYPE) {
+                (
+                    bytes32 rootHash,
+                    bytes memory passkeySignature
+                ) = _decodeMultiTxRootHashAndSignature(
+                        userOpHash,
+                        encodedSignature
+                    );
 
-            bytes32 userOpsRootHash = keccak256(
-                abi.encodePacked(
-                    userOpsHashPrefix,
-                    hash(UserOperationHash({txHash: userOpHash})),
-                    userOpsHashSuffix
-                )
-            );
-
-            bytes32 userOpDomainsRootHash = keccak256(
-                abi.encodePacked(
-                    userOpDomainsHashPrefix,
-                    hashChainDomain(),
-                    userOpDomainsHashSuffix
-                )
-            );
-
-            bytes32 rootHashWithNonPrefix = keccak256(
-                abi.encode(
-                    MULTI_TRANSACTION_TYPEHASH,
-                    novaTxsRootHash,
-                    userOpsRootHash,
-                    userOpDomainsRootHash
-                )
-            );
-
-            bytes32 multiTransactionDomainSeparator = keccak256(
-                abi.encode(
-                    EIP712_DOMAIN_TYPEHASH,
-                    MULTI_TRANSACTION_EIP712_DOMAIN_NAME,
-                    MULTI_TRANSACTION_EIP712_DOMAIN_VERSION,
-                    MULTI_TRANSACTION_EIP712_DOMAIN_CHAIN_ID
-                )
-            );
-            rootHash = keccak256(
-                abi.encodePacked(
-                    "\x19\x01",
-                    multiTransactionDomainSeparator,
-                    rootHashWithNonPrefix
-                )
-            );
-            cleanEcdsaSignature = tempCleanEcdsaSignature;
+                bIsValidSignature = _verifyR1Signature(
+                    rootHash,
+                    passkeySignature,
+                    msg.sender
+                );
+            } else if (magicNum == MULTI_TX_K1_TYPE) {
+                (
+                    bytes32 rootHash,
+                    bytes memory signature
+                ) = _decodeMultiTxRootHashAndSignature(
+                        userOpHash,
+                        encodedSignature
+                    );
+                bIsValidSignature = _verifyK1Signature(
+                    rootHash,
+                    signature,
+                    userOp.sender
+                );
+            }
         }
 
-        if (_verifySignature(rootHash, cleanEcdsaSignature, userOp.sender)) {
-            return VALIDATION_SUCCESS;
-        }
+        if (bIsValidSignature) return VALIDATION_SUCCESS;
+
         return SIG_VALIDATION_FAILED;
     }
 
@@ -269,7 +303,7 @@ contract EcdsaAndPasskeyOwnershipRegistryModule is BaseAuthorizationModule {
         bytes memory moduleSignature,
         address smartAccount
     ) public view virtual returns (bytes4) {
-        if (_verifySignature(dataHash, moduleSignature, smartAccount)) {
+        if (_verifyK1Signature(dataHash, moduleSignature, smartAccount)) {
             return EIP1271_MAGIC_VALUE;
         }
         return bytes4(0xffffffff);
@@ -306,7 +340,35 @@ contract EcdsaAndPasskeyOwnershipRegistryModule is BaseAuthorizationModule {
     }
 
     /**
-     * @dev Validates a signature for a message.
+     * @dev Transfers passkey for smartAccount and emits an event
+     * @param smartAccount Smart Account address.
+     * @param _pubKeyX The x-coordinate of the public key.
+     * @param _pubKeyY The y-coordinate of the public key.
+     * @param _credentialIdHash The credentialIdHash of the public key.
+     */
+    function _transferPasskey(
+        address smartAccount,
+        uint256 _pubKeyX,
+        uint256 _pubKeyY,
+        string memory _credentialIdHash
+    ) internal {
+        PassKeyId memory oldPasskey = _smartAccountPassKeys[smartAccount];
+        string memory oldCredentialIdHash = oldPasskey.keyId;
+        _smartAccountPassKeys[smartAccount] = PassKeyId(
+            _pubKeyX,
+            _pubKeyY,
+            _credentialIdHash
+        );
+
+        emit PasskeyTransferred(
+            smartAccount,
+            oldCredentialIdHash,
+            _credentialIdHash
+        );
+    }
+
+    /**
+     * @dev Validates a k1 signature for a message.
      * @dev Check if signature was made over dataHash.toEthSignedMessageHash() or just dataHash
      * The former is for personal_sign, the latter for the typed_data sign
      * Only EOA owners supported, no Smart Account Owners
@@ -316,7 +378,7 @@ contract EcdsaAndPasskeyOwnershipRegistryModule is BaseAuthorizationModule {
      * @param smartAccount expected signer Smart Account address.
      * @return true if signature is valid, false otherwise.
      */
-    function _verifySignature(
+    function _verifyK1Signature(
         bytes32 dataHash,
         bytes memory signature,
         address smartAccount
@@ -344,6 +406,91 @@ contract EcdsaAndPasskeyOwnershipRegistryModule is BaseAuthorizationModule {
         }
 
         return false;
+    }
+
+    /**
+     * @dev Validates a r1 signature for a message.
+     * @param dataHash Hash of the data to be validated.
+     * @param signature Signature to be validated.
+     * @param smartAccount expected signer Smart Account address.
+     * @return true if signature is valid, false otherwise.
+     */
+    function _verifyR1Signature(
+        bytes32 dataHash,
+        bytes memory signature,
+        address smartAccount
+    ) internal view returns (bool) {
+        PassKeyId memory passkey = _smartAccountPassKeys[smartAccount];
+        if (passkey.pubKeyX == 0 && passkey.pubKeyY == 0)
+            revert NoPassKeyRegisteredForSmartAccount(smartAccount);
+
+        (uint256 r, uint256 s, uint256 e) = PasskeyHelper
+            .calcP256SignatureParams(dataHash, signature);
+
+        if (r == 0 && s == 0 && e == 0) return false;
+        return Secp256r1.verify(passkey, r, s, e);
+    }
+
+    /// @notice Decode the root hash and signature for the multi transaction.
+    /// @param _userOpHash The hash of the user operation.
+    /// @param _encodedSignature The encoded signature.
+    function _decodeMultiTxRootHashAndSignature(
+        bytes32 _userOpHash,
+        bytes memory _encodedSignature
+    ) internal view returns (bytes32 rootHash, bytes memory signature) {
+        (
+            bytes32 novaTxsRootHash,
+            bytes memory userOpsHashPrefix,
+            bytes memory userOpsHashSuffix,
+            bytes memory userOpDomainsHashPrefix,
+            bytes memory userOpDomainsHashSuffix,
+            bytes memory cleanEcdsaSignature
+        ) = abi.decode(
+                _encodedSignature,
+                (bytes32, bytes, bytes, bytes, bytes, bytes)
+            );
+
+        bytes32 userOpsRootHash = keccak256(
+            abi.encodePacked(
+                userOpsHashPrefix,
+                hash(UserOperationHash({txHash: _userOpHash})),
+                userOpsHashSuffix
+            )
+        );
+
+        bytes32 userOpDomainsRootHash = keccak256(
+            abi.encodePacked(
+                userOpDomainsHashPrefix,
+                hashChainDomain(),
+                userOpDomainsHashSuffix
+            )
+        );
+
+        bytes32 rootHashWithNonPrefix = keccak256(
+            abi.encode(
+                MULTI_TRANSACTION_TYPEHASH,
+                novaTxsRootHash,
+                userOpsRootHash,
+                userOpDomainsRootHash
+            )
+        );
+
+        bytes32 multiTransactionDomainSeparator = keccak256(
+            abi.encode(
+                EIP712_DOMAIN_TYPEHASH,
+                MULTI_TRANSACTION_EIP712_DOMAIN_NAME,
+                MULTI_TRANSACTION_EIP712_DOMAIN_VERSION,
+                MULTI_TRANSACTION_EIP712_DOMAIN_CHAIN_ID
+            )
+        );
+        rootHash = keccak256(
+            abi.encodePacked(
+                "\x19\x01",
+                multiTransactionDomainSeparator,
+                rootHashWithNonPrefix
+            )
+        );
+        signature = cleanEcdsaSignature;
     }
 
     /**
