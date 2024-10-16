@@ -14,6 +14,7 @@ import {
   Deployer,
   Deployer__factory,
   ERC20SessionValidationModule__factory,
+  EmptySessionValidationModule__factory,
   EcdsaOwnershipRegistryModule__factory,
   EcdsaAndPasskeyOwnershipRegistryModule__factory,
   MultichainECDSAValidator__factory,
@@ -360,6 +361,16 @@ async function deployErc20SessionValidationModule(deployerInstance: Deployer) {
   );
 }
 
+async function deployEmptySessionValidationModule(deployerInstance: Deployer) {
+  await deployGeneric(
+    deployerInstance,
+    DEPLOYMENT_SALTS.EMPTY_SESSION_VALIDATION_MODULE,
+    `${EmptySessionValidationModule__factory.bytecode}`,
+    "EmptySessionValidationModule",
+    []
+  );
+}
+
 async function deploySmartContractOwnershipRegistryModule(
   deployerInstance: Deployer
 ) {
@@ -446,8 +457,8 @@ export async function mainDeploy(): Promise<Record<string, string>> {
   // console.log("=========================================");
   // await deployEcdsaOwnershipRegistryModule(deployerInstance);
   // console.log("=========================================");
-  await deployEcdsaAndPasskeyOwnershipRegistryModule(deployerInstance);
-  console.log("=========================================");
+  // await deployEcdsaAndPasskeyOwnershipRegistryModule(deployerInstance);
+  // console.log("=========================================");
   // await deployMultichainValidatorModule(deployerInstance);
   // console.log("=========================================");
   // await deployPasskeyModule(deployerInstance);
@@ -458,6 +469,8 @@ export async function mainDeploy(): Promise<Record<string, string>> {
   // console.log("=========================================");
   // await deployErc20SessionValidationModule(deployerInstance);
   // console.log("=========================================");
+  await deployEmptySessionValidationModule(deployerInstance);
+  console.log("=========================================");
   // await deploySmartContractOwnershipRegistryModule(deployerInstance);
   // console.log("=========================================");
 
