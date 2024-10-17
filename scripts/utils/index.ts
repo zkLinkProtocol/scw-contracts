@@ -34,12 +34,14 @@ type DeploymentSaltsType = {
   WALLET_IMP: string;
   SINGELTON_PAYMASTER: string;
   ECDSA_REGISTRY_MODULE: string;
+  ECDSA_AND_PASSKEY_REGISTRY_MODULE: string;
   MULTICHAIN_VALIDATOR_MODULE: string;
   PASSKEY_MODULE: string;
   SESSION_KEY_MANAGER_MODULE: string;
   SESSION_KEY_MANAGER_MODULE_V2: string;
   BATCHED_SESSION_ROUTER_MODULE: string;
   ERC20_SESSION_VALIDATION_MODULE: string;
+  EMPTY_SESSION_VALIDATION_MODULE: string;
   SMART_CONTRACT_OWNERSHIP_REGISTRY_MODULE: string;
 };
 
@@ -51,6 +53,8 @@ export const DEPLOYMENT_SALTS_DEV: DeploymentSaltsType = {
   WALLET_IMP: "DEVX_WALLET_IMP_V2_05092023",
   SINGELTON_PAYMASTER: "DEVX_SINGLETON_PAYMASTER_V1_21082024",
   ECDSA_REGISTRY_MODULE: "DEVX_ECDSA_REGISTRY_MODULE_V0_21082023",
+  ECDSA_AND_PASSKEY_REGISTRY_MODULE:
+    "DEVX_ECDSA_AND_PASSKEY_REGISTRY_MODULE_V0_26092024",
   MULTICHAIN_VALIDATOR_MODULE: "DEVX_MULTICHAIN_VALIDATOR_MODULE_V0_21082023",
   PASSKEY_MODULE: "DEVX_PASSKEY_MODULE_V0_21082023",
   SESSION_KEY_MANAGER_MODULE: "DEVX_SESSION_KEY_MANAGER_MODULE_V1_05092023",
@@ -58,6 +62,8 @@ export const DEPLOYMENT_SALTS_DEV: DeploymentSaltsType = {
   BATCHED_SESSION_ROUTER_MODULE: "DEVX_BATCHED_SESSION_ROUTER_MODULE_V1",
   ERC20_SESSION_VALIDATION_MODULE:
     "DEVX_ERC20_SESSION_VALIDATION_MODULE_V1_05092023",
+  EMPTY_SESSION_VALIDATION_MODULE:
+    "DEVX_EMPTY_SESSION_VALIDATION_MODULE_V1_13102024",
   SMART_CONTRACT_OWNERSHIP_REGISTRY_MODULE:
     "DEVX_SMART_CONTRACT_OWNERSHIP_REGISTRY_MODULE_V0_21082023",
 };
@@ -70,6 +76,8 @@ export const DEPLOYMENT_SALTS_PROD: DeploymentSaltsType = {
   WALLET_IMP: "PROD_WALLET_IMP_V2_05092023_ixWZVOM",
   SINGELTON_PAYMASTER: "PROD_SINGLETON_PAYMASTER_V1_22082023N4hlwuH",
   ECDSA_REGISTRY_MODULE: "PROD_ECDSA_REGISTRY_MODULE_V1_22082023_ypI3tHh",
+  ECDSA_AND_PASSKEY_REGISTRY_MODULE:
+    "PROD_ECDSA_AND_PASSKEY_REGISTRY_MODULE_V1_22082023_ypI3tHh",
   MULTICHAIN_VALIDATOR_MODULE:
     "PROD_MULTICHAIN_VALIDATOR_MODULE_V1_22082023_vdQZbfh",
   PASSKEY_MODULE: "PROD_PASSKEY_MODULE_V1_22082023_n0nz9WE",
@@ -81,6 +89,8 @@ export const DEPLOYMENT_SALTS_PROD: DeploymentSaltsType = {
     "PROD_BATCHED_SESSION_ROUTER_MODULE_V1_JwFzn0L", // 0x000008da71757c0e1d83ce56c823e25aa49bc058
   ERC20_SESSION_VALIDATION_MODULE:
     "PROD_ERC20_SESSION_VALIDATION_MODULE_V2_05092023NdquNFM",
+  EMPTY_SESSION_VALIDATION_MODULE:
+    "PROD_EMPTY_SESSION_VALIDATION_MODULE_V1_16102024JsYcnz2",
   SMART_CONTRACT_OWNERSHIP_REGISTRY_MODULE:
     "PROD_SMART_CONTRACT_OWNERSHIP_REGISTRY_MODULE_V1_22082023_6X7yarN",
 };
@@ -91,6 +101,9 @@ export const DEPLOYMENT_CHAIN_GAS_PRICES: Record<
   | { gasPrice: BigNumberish }
 > = {
   // Testnets
+  11155111: {
+    gasPrice: parseUnits("30", "gwei"),
+  },
   80001: { gasPrice: parseUnits("100", "gwei") },
   97: { gasPrice: parseUnits("5", "gwei") },
   5: {
@@ -98,6 +111,9 @@ export const DEPLOYMENT_CHAIN_GAS_PRICES: Record<
     maxFeePerGas: parseUnits("100", "gwei"),
   },
   421613: {
+    gasPrice: parseUnits("0.1", "gwei"),
+  },
+  421614: {
     gasPrice: parseUnits("0.1", "gwei"),
   },
   420: {
@@ -109,10 +125,16 @@ export const DEPLOYMENT_CHAIN_GAS_PRICES: Record<
   1442: {
     gasPrice: parseUnits("1", "gwei"),
   },
+  2442: {
+    gasPrice: parseUnits("1", "gwei"),
+  },
   59140: {
     gasPrice: parseUnits("0.1", "gwei"),
   },
   84531: {
+    gasPrice: parseUnits("1.5", "gwei"),
+  },
+  84532: {
     gasPrice: parseUnits("1.5", "gwei"),
   },
   5611: {
@@ -124,6 +146,12 @@ export const DEPLOYMENT_CHAIN_GAS_PRICES: Record<
   5001: {
     gasPrice: parseUnits("0.1", "gwei"),
   },
+  59141: {
+    gasPrice: parseUnits("2", "gwei"),
+  },
+  3441006: { gasPrice: parseUnits("0.1", "gwei") },
+  11155420: { gasPrice: parseUnits("0.1", "gwei") },
+  534351: { gasPrice: parseUnits("10", "gwei") },
 
   // Mainnets
   137: {
@@ -147,6 +175,8 @@ export const DEPLOYMENT_CHAIN_GAS_PRICES: Record<
   204: { gasPrice: parseUnits("0.1", "gwei") },
   5000: { gasPrice: parseUnits("1", "gwei") },
   1284: { gasPrice: parseUnits("150", "gwei") },
+  169: { gasPrice: parseUnits("0.1", "gwei") },
+  534352: { gasPrice: parseUnits("1", "gwei") },
 };
 
 export type StakingConfig = {

@@ -62,29 +62,29 @@ const config: HardhatUserConfig = {
     hardhat: {
       ...(shouldRunInForkMode
         ? {
-            // Forking Config for Deployment Testing
-            chainId: 5000,
-            forking: {
-              url: process.env.MANTLE_MAINNET_URL,
+          // Forking Config for Deployment Testing
+          chainId: 5000,
+          forking: {
+            url: process.env.MANTLE_MAINNET_URL,
+          },
+          accounts: [
+            {
+              privateKey: process.env.PRIVATE_KEY!,
+              // This is a dummy value and will be overriden in the test by
+              // the account's actual balance from the forked chain
+              balance: "10000000000000000000000000",
             },
-            accounts: [
-              {
-                privateKey: process.env.PRIVATE_KEY!,
-                // This is a dummy value and will be overriden in the test by
-                // the account's actual balance from the forked chain
-                balance: "10000000000000000000000000",
-              },
-            ],
-          }
+          ],
+        }
         : {
-            // Normal Config
-            accounts: {
-              accountsBalance: "10000000000000000000000000",
-              //   mnemonic: MNEMONIC,
-            },
-            allowUnlimitedContractSize: true,
-            chainId: 31337,
-          }),
+          // Normal Config
+          accounts: {
+            accountsBalance: "10000000000000000000000000",
+            //   mnemonic: MNEMONIC,
+          },
+          allowUnlimitedContractSize: true,
+          chainId: 31337,
+        }),
     },
     hardhat_node: {
       live: false,
@@ -106,133 +106,35 @@ const config: HardhatUserConfig = {
       },
       gasPrice: parseUnits("1", "gwei").toNumber(),
     },
-    eth_mainnet: {
+    mainnet: {
       url: process.env.ETH_MAINNET_URL || "",
       chainId: 1,
       accounts: hardhatAccounts,
     },
-    goerli: {
-      url: process.env.GOERLI_URL || "",
-      chainId: 5,
+    sepolia: {
+      url: process.env.SEPOLIA_URL || "",
+      chainId: 11155111,
       accounts: hardhatAccounts,
     },
-    polygon_mainnet: {
-      url: process.env.POLYGON_URL || "",
-      chainId: 137,
-      accounts: hardhatAccounts,
-      // : 200e9,
-    },
-    polygon_mumbai: {
-      url: process.env.POLYGON_MUMBAI_URL || "",
-      chainId: 80001,
-      accounts: hardhatAccounts,
-    },
-    bnb_mainnet: {
-      url: "https://bsc-dataseed2.binance.org",
-      chainId: 56,
-      accounts: hardhatAccounts,
-    },
-    bnb_testnet: {
-      url:
-        process.env.BSC_TESTNET_URL ||
-        "https://wandering-broken-tree.bsc-testnet.quiknode.pro/7992da20f9e4f97c2a117bea9af37c1c266f63ec/",
-      chainId: 97,
-      accounts: hardhatAccounts,
-      gasPrice: 50e9,
-    },
-    avalancheMain: {
-      url: "https://api.avax.network/ext/bc/C/rpc",
-      accounts: hardhatAccounts,
-      chainId: 43114,
-    },
-    avalancheTest: {
-      url: "https://api.avax-test.network/ext/bc/C/rpc",
-      accounts: hardhatAccounts,
-      chainId: 43113,
-    },
-    arbitrumMain: {
+    arbitrumOne: {
       url: "https://arb1.arbitrum.io/rpc",
       accounts: hardhatAccounts,
       chainId: 42161,
     },
-    arbitrumGoerli: {
-      url: "https://goerli-rollup.arbitrum.io/rpc",
+    arbitrumSepolia: {
+      url: "https://sepolia-rollup.arbitrum.io/rpc",
       accounts: hardhatAccounts,
-      chainId: 421613,
-      // gasPrice: 2e9, //2 gwei
-    },
-    arbitrumTest: {
-      url: "https://rinkeby.arbitrum.io/rpc",
-      accounts: hardhatAccounts,
-      chainId: 421611,
-    },
-    arbitrumNova: {
-      url: "https://nova.arbitrum.io/rpc",
-      accounts: hardhatAccounts,
-      chainId: 42170,
-    },
-    zkevm_mainnet: {
-      url: process.env.ZKEVM_MAINNET_URL || "https://zkevm-rpc.com",
-      chainId: 1101,
-      accounts: hardhatAccounts,
-    },
-    zkevm_testnet: {
-      url: process.env.ZKEVM_TESTNET_URL || "https://rpc.public.zkevm-test.net",
-      chainId: 1442,
-      accounts: hardhatAccounts,
-      // gasPrice: 50e9,
-    },
-    optimismGoerli: {
-      url: `https://goerli.optimism.io`,
-      accounts: hardhatAccounts,
-      chainId: 420,
+      chainId: 421614,
     },
     optimismMainnet: {
       url: `https://mainnet.optimism.io`,
       accounts: hardhatAccounts,
       chainId: 10,
     },
-    moonbeam_mainnet: {
-      url: "https://rpc.api.moonbeam.network",
-      chainId: 1284,
+    optimismSepolia: {
+      url: `https://sepolia.optimism.io`,
       accounts: hardhatAccounts,
-    },
-    moonbeamTest: {
-      url: "https://rpc.api.moonbase.moonbeam.network",
-      accounts: hardhatAccounts,
-      chainId: 1287,
-    },
-    celoTestnet: {
-      url: `https://alfajores-forno.celo-testnet.org`,
-      accounts: walletUtils.makeKeyList(),
-      chainId: 44787,
-    },
-    celoMainnet: {
-      url: `https://forno.celo.org`,
-      accounts: walletUtils.makeKeyList(),
-      chainId: 42220,
-    },
-    neonDevnet: {
-      url: `https://proxy.devnet.neonlabs.org/solana`,
-      accounts: walletUtils.makeKeyList(),
-      chainId: 245022926,
-    },
-    baseGoerli: {
-      url:
-        process.env.BASE_TESTNET_URL ||
-        `https://base-goerli.blockpi.network/v1/rpc/public`,
-      accounts: hardhatAccounts,
-      chainId: 84531,
-    },
-    lineaGoerli: {
-      url: process.env.LINEA_TESTNET_URL || `https://rpc.goerli.linea.build`,
-      accounts: hardhatAccounts,
-      chainId: 59140,
-    },
-    lineaMainnet: {
-      url: process.env.LINEA_MAINNET_URL || ``,
-      accounts: hardhatAccounts,
-      chainId: 59144,
+      chainId: 11155420,
     },
     baseMainnet: {
       url:
@@ -241,30 +143,40 @@ const config: HardhatUserConfig = {
       accounts: hardhatAccounts,
       chainId: 8453,
     },
-    opBNBMainnet: {
-      url: process.env.OP_BNB_MAINNET_URL || "",
+    baseSepolia: {
+      url: "https://sepolia.base.org",
+      chainId: 84532,
       accounts: hardhatAccounts,
-      chainId: 204,
     },
-    opBNBTestnet: {
-      url: process.env.OP_BNB_TESTNET_URL || "",
+    lineaMainnet: {
+      url: process.env.LINEA_MAINNET_URL || ``,
       accounts: hardhatAccounts,
-      chainId: 5611,
+      chainId: 59144,
     },
-    mantleMainnet: {
-      url: process.env.MANTLE_MAINNET_URL || "",
+    lineaSepolia: {
+      url: process.env.LINEA_SEPOLIA_URL || `https://rpc.sepolia.linea.build`,
       accounts: hardhatAccounts,
-      chainId: 5000,
+      chainId: 59141,
     },
-    mantleTestnet: {
-      url: process.env.MANTLE_TESTNET_URL || "",
+    mantaMainnet: {
+      url: process.env.MANTA_MAINNET_URL || "",
       accounts: hardhatAccounts,
-      chainId: 5001,
+      chainId: 169,
     },
-    comboTestnet: {
-      url: process.env.COMBO_TESTNET_URL || "",
+    mantaSepolia: {
+      url: process.env.MANTA_TESTNET_URL || "",
       accounts: hardhatAccounts,
-      chainId: 91715,
+      chainId: 3441006,
+    },
+    scrollMainnet: {
+      url: process.env.SCROLL_MAINNET_URL || "",
+      accounts: hardhatAccounts,
+      chainId: 534352,
+    },
+    scrollSepolia: {
+      url: process.env.SCROLL_TESTNET_URL || "",
+      accounts: hardhatAccounts,
+      chainId: 534351,
     },
   },
 
@@ -279,48 +191,43 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: {
       mainnet: process.env.ETHERSCAN_API_KEY || "",
-      goerli: process.env.ETHERSCAN_API_KEY || "",
-      polygonMumbai: process.env.POLYGONSCAN_API_KEY || "",
-      polygon: process.env.POLYGONSCAN_API_KEY || "",
-      bscTestnet: process.env.BSCSCAN_API_KEY || "",
-      bsc: process.env.BSCSCAN_API_KEY || "",
-      moonbeam: process.env.MOONBEAM_KEY || "",
-      moonbaseAlpha: process.env.MOONBEAM_KEY || "",
-      avalancheFujiTestnet: process.env.AVALANCHE_API_KEY || "",
-      avalanche: process.env.AVALANCHE_API_KEY || "",
-      arbitrumGoerli: process.env.ARBITRUM_API_KEY || "",
-      arbitrumTestnet: process.env.ARBITRUM_API_KEY || "",
+      sepolia: process.env.ETHERSCAN_API_KEY || "",
       arbitrumOne: process.env.ARBITRUM_API_KEY || "",
-      arbitrumNova: process.env.ARBITRUM_NOVA_API_KEY || "",
-      optimisticGoerli: process.env.OPTIMISTIC_API_KEY || "",
-      optimisticEthereum: process.env.OPTIMISTIC_API_KEY || "",
-      lineaGoerli: process.env.LINEA_API_KEY || "",
+      arbitrumSepolia: process.env.ARBITRUM_API_KEY || "",
+      optimismMainnet: process.env.OPTIMISM_API_KEY || "",
+      optimismSepolia: process.env.OPTIMISM_API_KEY || "",
       lineaMainnet: process.env.LINEA_API_KEY || "",
-      baseGoerli: process.env.BASE_GOERI_API_KEY || "",
-      baseMainnet: process.env.BASE_MAINNET_API_KEY || "",
-      zkEVMMainnet: process.env.ZKEVM_API_KEY || "",
-      zkEVMGoerli: process.env.ZKEVM_API_KEY || "",
-      opBNBTestnet: process.env.OP_BNB_API_KEY || "",
-      opBNBMainnet: process.env.OP_BNB_API_KEY || "",
-      mantleTestnet: "PLACEHOLDER_STRING",
-      mantleMainnet: "PLACEHOLDER_STRING",
-      comboTestnet: process.env.COMBO_API_KEY || "",
+      lineaSepolia: process.env.LINEA_API_KEY || "",
+      baseMainnet: process.env.BASE_API_KEY || "",
+      baseSepolia: process.env.BASE_API_KEY || "",
+      mantaMainnet: process.env.MANTA_API_KEY || "",
+      mantaSepolia: process.env.MANTA_API_KEY || "",
+      scrollMainnet: process.env.SCROLL_API_KEY || "",
+      scrollSepolia: process.env.SCROLL_API_KEY || "",
     },
     customChains: [
       {
-        network: "arbitrumNova",
-        chainId: 42170,
-        urls: {
-          apiURL: "https://api-nova.arbiscan.io/api",
-          browserURL: "https://nova.arbiscan.io/",
-        },
+        "network": "optimismMainnet",
+        "chainId": 10,
+        "urls": {
+          "apiURL": "https://api-optimistic.etherscan.io/api",
+          "browserURL": "https://optimistic.etherscan.io"
+        }
       },
       {
-        network: "lineaGoerli",
-        chainId: 59140,
+        "network": "optimismSepolia",
+        "chainId": 11155420,
+        "urls": {
+          "apiURL": "https://api-sepolia-optimistic.etherscan.io/api",
+          "browserURL": "https://sepolia-optimistic.etherscan.io"
+        }
+      },
+      {
+        network: "lineaSepolia",
+        chainId: 59141,
         urls: {
-          apiURL: "https://explorer.goerli.linea.build/api",
-          browserURL: "https://goerli.lineascan.build",
+          apiURL: "https://api-sepolia.lineascan.build/api",
+          browserURL: "https://sepolia.lineascan.build/",
         },
       },
       {
@@ -332,14 +239,6 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        network: "baseGoerli",
-        chainId: 84531,
-        urls: {
-          apiURL: "https://api-goerli.basescan.org/api",
-          browserURL: "https://goerli.basescan.org",
-        },
-      },
-      {
         network: "baseMainnet",
         chainId: 8453,
         urls: {
@@ -348,59 +247,51 @@ const config: HardhatUserConfig = {
         },
       },
       {
-        network: "zkEVMMainnet",
-        chainId: 1101,
+        network: "baseSepolia",
+        chainId: 84532,
         urls: {
-          apiURL: "https://api-zkevm.polygonscan.com/api",
-          browserURL: "https://zkevm.polygonscan.com",
+          apiURL: "https://api-sepolia.basescan.org/api",
+          browserURL: "https://sepolia.basescan.org"
+        }
+      },
+      {
+        network: "arbitrumSepolia",
+        chainId: 421614,
+        urls: {
+          apiURL: "https://api-sepolia.arbiscan.io/api",
+          browserURL: "	https://sepolia.arbiscan.io"
+        }
+      },
+      {
+        network: "mantaMainnet",
+        chainId: 169,
+        urls: {
+          apiURL: "https://pacific-explorer.manta.network/api",
+          browserURL: "https://pacific-explorer.manta.network/",
         },
       },
       {
-        network: "zkEVMGoerli",
-        chainId: 1442,
+        network: "mantaSepolia",
+        chainId: 3441006,
         urls: {
-          apiURL: "https://api-testnet-zkevm.polygonscan.com/api",
-          browserURL: "https://testnet-zkevm.polygonscan.com",
+          apiURL: "https://pacific-explorer.sepolia-testnet.manta.network/api",
+          browserURL: "https://pacific-explorer.sepolia-testnet.manta.network",
         },
       },
       {
-        network: "opBNBMainnet",
-        chainId: 204,
+        network: 'scrollMainnet',
+        chainId: 534352,
         urls: {
-          apiURL: `https://open-platform.nodereal.io/${process.env.OP_BNB_API_KEY}/op-bnb-mainnet/contract/`,
-          browserURL: "https://mainnet.opbnbscan.com/",
+          apiURL: 'https://api.scrollscan.com/api',
+          browserURL: 'https://scrollscan.com/',
         },
       },
       {
-        network: "opBNBTestnet",
-        chainId: 5611,
+        network: 'scrollSepolia',
+        chainId: 534351,
         urls: {
-          apiURL: `https://open-platform.nodereal.io/${process.env.OP_BNB_API_KEY}/op-bnb-testnet/contract/`,
-          browserURL: "https://opbscan.com",
-        },
-      },
-      {
-        network: "mantleMainnet",
-        chainId: 5000,
-        urls: {
-          apiURL: "https://explorer.mantle.xyz/api",
-          browserURL: "https://explorer.mantle.xyz",
-        },
-      },
-      {
-        network: "mantleTestnet",
-        chainId: 5001,
-        urls: {
-          apiURL: "https://explorer.testnet.mantle.xyz/api",
-          browserURL: "https://explorer.testnet.mantle.xyz",
-        },
-      },
-      {
-        network: "comboTestnet",
-        chainId: 91715,
-        urls: {
-          apiURL: `https://open-platform.nodereal.io/${process.env.COMBO_API_KEY}/combotrace-testnet/contract/`,
-          browserURL: "https://combotrace-testnet.nodereal.io",
+          apiURL: 'https://api-sepolia.scrollscan.com/api',
+          browserURL: 'https://sepolia.scrollscan.com/',
         },
       },
     ],
