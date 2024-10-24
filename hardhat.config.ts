@@ -178,6 +178,16 @@ const config: HardhatUserConfig = {
       accounts: hardhatAccounts,
       chainId: 534351,
     },
+    bsc: {
+      url: process.env.BSC_MAINNET_URL || "",
+      accounts: hardhatAccounts,
+      chainId: 56,
+    },
+    bscTestnet: {
+      url: process.env.BSC_TESTNET_URL || "",
+      accounts: hardhatAccounts,
+      chainId: 97,
+    },
   },
 
   gasReporter: {
@@ -204,6 +214,8 @@ const config: HardhatUserConfig = {
       mantaSepolia: process.env.MANTA_API_KEY || "",
       scrollMainnet: process.env.SCROLL_API_KEY || "",
       scrollSepolia: process.env.SCROLL_API_KEY || "",
+      bsc: process.env.BSC_API_KEY || "",
+      bscTestnet: process.env.BSC_API_KEY || "",
     },
     customChains: [
       {
