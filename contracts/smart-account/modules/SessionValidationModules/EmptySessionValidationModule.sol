@@ -53,12 +53,6 @@ contract EmptySessionValidationModule is ISessionValidationModule {
     ) external pure override returns (bool) {
         bytes calldata callData = _op.callData;
 
-        require(
-            bytes4(callData[0:4]) == EXECUTE_OPTIMIZED_SELECTOR ||
-                bytes4(callData[0:4]) == EXECUTE_SELECTOR,
-            "ABISV Not Execute Selector"
-        );
-
         uint160 destContract;
         uint256 callValue;
         bytes calldata data;
